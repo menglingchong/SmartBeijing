@@ -1,9 +1,12 @@
 package com.heima.smartbeijing.base;
 
+import com.heima.smartbeijing.MainActivity;
 import com.heima.smartbeijing.R;
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
 
 import android.app.Activity;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -30,7 +33,15 @@ public class BasePager {
 		tvTitle = (TextView) view.findViewById(R.id.tv_title);
 		btnMenu = (ImageButton) view.findViewById(R.id.btn_menu);
 		flContent = (FrameLayout) view.findViewById(R.id.fl_content);
-		
+		btnMenu.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				MainActivity mainUI = (MainActivity) mActivity;
+				SlidingMenu slidingMenu = mainUI.getSlidingMenu();
+				slidingMenu.toggle();//如果状态是开，调用后关闭，反之亦然
+			}
+		});
 		return view;
 	}
 	//初始化数据

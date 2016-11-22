@@ -25,5 +25,9 @@ public class NoScrollViewPager extends ViewPager {
 //		return super.onTouchEvent(ev);如果是控件的扩展返回的是uper.onTouchEvent(ev);
 	}
 
-	
+	//事件拦截
+	@Override
+	public boolean onInterceptTouchEvent(MotionEvent ev) {
+		return false;
+	}
 }
