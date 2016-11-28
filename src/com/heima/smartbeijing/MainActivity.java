@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Window;
+import android.view.WindowManager;
 
 /**
  * Ö÷½çÃæ
@@ -31,7 +32,12 @@ public class MainActivity extends SlidingFragmentActivity{
 		setBehindContentView(R.layout.left_menu);
 		SlidingMenu slidingMenu = getSlidingMenu();
 		slidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);//È«ÆÁ´¥Ãş
-		slidingMenu.setBehindOffset(400);//ÆÁÄ»Ô¤ÁôÏñËØ
+//		slidingMenu.setBehindOffset(400);//ÆÁÄ»Ô¤ÁôÏñËØ
+		
+		//200/320 *ÆÁÄ»¿í¶È
+		WindowManager wm = getWindowManager();
+		int width = wm.getDefaultDisplay().getWidth();
+		slidingMenu.setBehindOffset(width*200 / 320);
 		
 		initFragment();
 	}

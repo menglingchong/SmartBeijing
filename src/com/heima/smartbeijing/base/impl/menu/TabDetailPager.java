@@ -3,12 +3,17 @@ package com.heima.smartbeijing.base.impl.menu;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.TextUtils;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -19,8 +24,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.heima.smartbeijing.NewDetailActivity;
 import com.heima.smartbeijing.R;
 import com.heima.smartbeijing.base.BaseMenuDetailPager;
+import com.heima.smartbeijing.base.impl.GovAffairsPager;
 import com.heima.smartbeijing.domain.NewsMenu.NewsTabData;
 import com.heima.smartbeijing.domain.NewsTabBean;
 import com.heima.smartbeijing.domain.NewsTabBean.NewsData;
@@ -59,6 +66,7 @@ public class TabDetailPager extends BaseMenuDetailPager {
 	private String mMoreUrl;
 	private NewsAdapter mNewsAdapter;
 	
+	private Handler mHandler;
 	
 	public TabDetailPager(Activity activity, NewsTabData newsTabData) {
 		super(activity);
@@ -134,6 +142,11 @@ public class TabDetailPager extends BaseMenuDetailPager {
 				tvTitle.setTextColor(Color.GRAY);
 				
 //				mNewsAdapter.notifyDataSetChanged();//全局刷新
+				
+				//点击item实现页面的跳转
+				Intent intent = new Intent(mActivity,NewDetailActivity.class);
+				intent.putExtra("url",GlobalConstances.SERVER_URL+ newsData.url);
+				mActivity.startActivity(intent);
 			}
 		});
 		return view;
@@ -266,6 +279,59 @@ public class TabDetailPager extends BaseMenuDetailPager {
 				mNewsAdapter = new NewsAdapter();
 				lvList.setAdapter(mNewsAdapter);
 			}
+			
+			//加载完数据后，viewpager自动轮询
+			if (mHandler == null) {
+				mHandler = new Handler(){
+					 @Override
+					public void handleMessage(Message msg) {
+						super.handleMessage(msg);
+						int currentItem = mViewPager.getCurrentItem();
+						currentItem++;
+						if (currentItem > mTopNews.size() -1) {
+							currentItem =0; //如果已经到最后一个页面，跳到第一个页面
+						}
+						
+						mViewPager.setCurrentItem(currentItem);
+						mHandler.sendEmptyMessageDelayed(0,3000);//发送延时3秒消息
+					 };
+				};
+				
+				//保证启动自动轮播逻辑时，只执行一次
+				mHandler.sendEmptyMessageDelayed(0,3000);//发送延时3秒消息
+				
+				//自动轮播时处理viewpager的触摸事件
+				mViewPager.setOnTouchListener(new OnTouchListener() {
+					
+					@Override
+					public boolean onTouch(View v, MotionEvent event) {
+						switch (event.getAction()) {
+						case MotionEvent.ACTION_DOWN:
+							System.out.println("ACTION_DOWN");
+							//停止图片自动轮播
+							//删除handler的所有的消息
+							mHandler.removeCallbacksAndMessages(null);
+							break;
+						case MotionEvent.ACTION_CANCEL://取消事件
+							//当按下viewpager后，直接滑动listview会导致抬起事件无响应，但是会走此事件
+							System.out.println("ACTION_CANCEL");
+							//启动轮播
+							mHandler.sendEmptyMessageDelayed(0, 3000);
+							break;
+						case MotionEvent.ACTION_UP:
+							System.out.println("ACTION_UP");
+							//启动轮播
+							mHandler.sendEmptyMessageDelayed(0, 3000);
+							break;
+
+						default:
+							break;
+						}
+						return false;
+					}
+				});
+			}
+			
 		} else {
 			//加载更多数据
 			ArrayList<NewsData> moreNews = newsTabBean.data.news;

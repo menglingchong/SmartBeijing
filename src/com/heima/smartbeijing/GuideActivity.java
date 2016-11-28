@@ -2,6 +2,7 @@ package com.heima.smartbeijing;
 
 import java.util.ArrayList;
 
+import com.heima.smartbeijing.utils.DensityUtils;
 import com.heima.smartbeijing.utils.PrefUtils;
 
 import android.app.Activity;
@@ -139,7 +140,7 @@ public class GuideActivity extends Activity{
 		
 			if (i>0) {
 				//从第二个点开始设置左边距
-				params.leftMargin=10;
+				params.leftMargin=DensityUtils.dip2px(this, 10);
 			}
 			//设置小圆点的布局
 			pointView.setLayoutParams(params);
